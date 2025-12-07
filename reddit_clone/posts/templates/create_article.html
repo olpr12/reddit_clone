@@ -1,0 +1,13 @@
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    {{ form.as_p }}
+
+    <label>Фото:</label>
+    <input type="file" name="images" multiple>
+
+    <label>Відео:</label>
+    <input type="file" name="videos" multiple>
+
+    <button type="submit" class="btn btn-primary">Створити</button>
+</form>

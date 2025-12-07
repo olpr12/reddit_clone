@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h2 class="mb-3">Профіль: {{ user.username }}</h2>
+
+    <p class="text-muted">Email: {{ user.email }}</p>
+    <p class="text-muted">Роль: {{ user.role }}</p>
+
+    <hr>
+
+    <h3>Мої статті</h3>
+
+    {% for article in my_articles %}
+        <div class="card mb-3 shadow-sm">
+            <div class="card-body">
+
+                <h4>
+                    <a href="{% url 'article_detail' article.pk %}" class="text-decoration-none">
+                        {{ article.title }}
+                    </a>
+                </h4>
+
+                <p class="text-muted">Статус: {{ article.status }}</p>
+
+                <a href="{% url 'article_edit' article.pk %}" class="btn btn-secondary btn-sm">Редагувати</a>
+                <a href="{% url 'article_delete' article.pk %}" class="btn btn-danger btn-sm"
+                   onclick="return confirm('Видалити статтю?')">
+                    Видалити
+                </a>
+
+            </div>
+        </div>
+    {% empty %}
+        <p class="text-muted">У вас поки немає статей.</p>
+    {% endfor %}
+
+</div>
+{% endblock %}

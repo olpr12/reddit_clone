@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+
+    <h1 class="mb-3">{{ article.title }}</h1>
+
+    <p class="text-muted">
+        Автор: <strong>{{ article.author.username }}</strong> |
+        {{ article.created_at|date:"d.m.Y H:i" }}
+    </p>
+
+    <hr>
+
+    <div class="mb-4">
+        {{ article.content|linebreaks }}
+    </div>
+
+    <!-- Блок лайку -->
+    <div class="mb-3 d-flex align-items-center gap-2">
+        <form action="{% url 'like_article' article.pk %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm {% if user_liked %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                👍 Лайк
+            </button>
+        </form>
+        <span>{{ likes_count }} {{ likes_count|pluralize:"лайк,лайки,лайків" }}</span>
+    </div>
+
+    <!-- Фото -->
+    {% if article.images.exists %}
+    <h4>Фото</h4>
+    <div class="row mb-4">
+        {% for img in article.images.all %}
+        <div class="col-md-4">
+            <img src="{{ img.image.url }}" class="img-fluid rounded mb-3 shadow-sm" alt="Зображення статті">
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- Відео -->
+    {% if article.videos.exists %}
+    <h4>Відео</h4>
+    <div class="row mb-4">
+        {% for vid in article.videos.all %}
+        <div class="col-md-6">
+            <video controls class="w-100 rounded shadow-sm mb-3">
+                <source src="{{ vid.video.url }}">
+                Ваш браузер не підтримує відтворення відео.
+            </video>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <hr>
+
+    <h3 class="mb-3">Коментарі</h3>
+
+    {% for comment in article.comments.all %}
+        {% if comment.is_approved or comment.author == user or article.author == user %}
+        <div class="card mb-3">
+            <div class="card-body">
+
+                <div class="d-flex justify-content-between">
+                    <strong>{{ comment.author.username }}</strong>
+                    <small class="text-muted">{{ comment.created_at|date:"d.m.Y H:i" }}</small>
+                </div>
+
+                <p class="mt-2">{{ comment.text }}</p>
+
+                {% if not comment.is_approved and user == article.author %}
+                <div>
+                    <a href="{% url 'approve_comment' comment.pk %}" class="btn btn-success btn-sm">Одобрити</a>
+                    <a href="{% url 'delete_comment' comment.pk %}" class="btn btn-danger btn-sm">Видалити</a>
+                </div>
+                {% endif %}
+
+            </div>
+        </div>
+        {% endif %}
+    {% empty %}
+        <p class="text-muted">Немає коментарів</p>
+    {% endfor %}
+
+    <hr>
+
+    {% if user.is_authenticated %}
+    <h4>Залишити коментар</h4>
+
+    <form action="{% url 'comment_article' article.pk %}" method="post" class="mb-4">
+        {% csrf_token %}
+        <textarea name="text" class="form-control mb-2" placeholder="Ваш коментар..." rows="3" required></textarea>
+        <button type="submit" class="btn btn-primary">Надіслати</button>
+    </form>
+    {% else %}
+    <p>Щоб залишити коментар, <a href="{% url 'login' %}">увійдіть у свій акаунт</a>.</p>
+    {% endif %}
+
+</div>
+{% endblock %}

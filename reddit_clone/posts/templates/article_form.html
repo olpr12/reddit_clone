@@ -1,0 +1,160 @@
+{% load static %}
+{% load form_filters %}
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <title>Створити / Редагувати статтю</title>
+
+    <!-- Bootstrap -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+
+    <style>
+        body {
+            background: #f5f5f5;
+        }
+        .form-box {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 0 12px rgba(0,0,0,0.08);
+            margin-top: 40px;
+        }
+
+        /* стилі тегів */
+        .tag {
+            display: inline-block;
+            background: #0d6efd;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 12px;
+            margin-right: 5px;
+            margin-bottom: 5px;
+        }
+        .tag .remove-tag {
+            margin-left: 6px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #tags-container {
+            margin-top: 5px;
+        }
+    </style>
+</head>
+
+<body class="container py-4">
+
+    <div class="mb-3">
+        <a href="{% url 'article_list' %}" class="btn btn-secondary">← Назад до статей</a>
+        <a href="{% url 'feed' %}" class="btn btn-outline-primary ms-2">🏠 На головну</a>
+    </div>
+
+    <div class="form-box">
+        <h2 class="mb-4">
+            {% if form.instance.pk %}
+                Редагувати статтю
+            {% else %}
+                Створити статтю
+            {% endif %}
+        </h2>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label class="form-label">Заголовок</label>
+                {{ form.title|add_class:"form-control" }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Текст</label>
+                {{ form.content|add_class:"form-control" }}
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Категорія</label>
+                {{ form.category|add_class:"form-select" }}
+            </div>
+
+            <!-- Теги -->
+            <div class="mb-3">
+                <label class="form-label">Теги</label>
+
+                <!-- Поле для вводу -->
+                <input type="text" id="tag-input" class="form-control" placeholder="Введіть тег і натисніть Enter">
+
+                <!-- Контейнер для візуальних тегів -->
+                <div id="tags-container"></div>
+
+                <!-- Сховане поле для Django -->
+                <input type="hidden" name="tags_list" id="tags-hidden">
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Статус</label>
+                {{ form.status|add_class:"form-select" }}
+            </div>
+
+            <!-- Множинне завантаження фото -->
+            <div class="mb-3">
+                <label for="id_images" class="form-label">Фото</label>
+                <input type="file" name="images" id="id_images" multiple class="form-control">
+            </div>
+
+            <!-- Множинне завантаження відео -->
+            <div class="mb-3">
+                <label for="id_videos" class="form-label">Відео</label>
+                <input type="file" name="videos" id="id_videos" multiple class="form-control">
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100">Зберегти</button>
+        </form>
+    </div>
+
+    <script>
+        const tagInput = document.getElementById("tag-input");
+        const tagsContainer = document.getElementById("tags-container");
+        const hiddenInput = document.getElementById("tags-hidden");
+
+        let tags = [];
+
+        // Додаємо тег при натисканні Enter
+        tagInput.addEventListener("keypress", function (e) {
+            if (e.key === "Enter") {
+                e.preventDefault();
+                const value = tagInput.value.trim();
+
+                if (value !== "" && !tags.includes(value)) {
+                    tags.push(value);
+                    updateTags();
+                }
+
+                tagInput.value = "";
+            }
+        });
+
+        // Оновлюємо відображення тегів і сховане поле
+        function updateTags() {
+            tagsContainer.innerHTML = "";
+            tags.forEach(tag => {
+                tagsContainer.innerHTML += `
+                    <span class="tag">
+                        ${tag}
+                        <span class="remove-tag" onclick="removeTag('${tag}')">×</span>
+                    </span>
+                `;
+            });
+
+            hiddenInput.value = tags.join(",");
+        }
+
+        // Видаляємо тег
+        function removeTag(tag) {
+            tags = tags.filter(t => t !== tag);
+            updateTags();
+        }
+    </script>
+
+</body>
+</html>

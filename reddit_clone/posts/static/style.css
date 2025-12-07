@@ -1,0 +1,41 @@
+body {
+    background-color: #f4f4f4;
+}
+
+/* Карточки */
+.card {
+    border-radius: 12px;
+}
+
+/* Теги */
+.badge {
+    margin-right: 6px;
+}
+
+/* Текст у статтях */
+.article-content {
+    font-size: 18px;
+    line-height: 1.7;
+}
+
+/* Коментарі */
+.comment-box {
+    background: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+/* Картинки статті */
+.article-image {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+/* Відео */
+.article-video {
+    width: 100%;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
